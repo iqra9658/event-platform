@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: event-platform-api
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: MONGODB_URI
+        scope: build
+        value: mongodb+srv://admin:password@cluster.mongodb.net/event_platform
+      - key: JWT_SECRET
+        scope: build
+        value: your-32-character-secret-here
+      - key: NODE_ENV
+        value: production
+    rootDir: server
