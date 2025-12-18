@@ -16,17 +16,23 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 // Connect to MongoDB
 const connectDB = async () => {
   try {
-    // 🔴 FIXED HERE: now includes MONGO_URI
     const mongoURI =
       process.env.MONGO_URI ||
       process.env.MONGODB_URI ||
       process.env.MONGODB_URL;
 
+    // 🔍 DEBUG: check if env variable is actually loading
+    console.log("🔍 Mongo URI exists:", !!process.env.MONGO_URI);
+
     if (!mongoURI) {
       throw new Error('MongoDB URI not configured in environment variables');
     }
 
-    await mongoose.connect(mongoURI);
+    await mongoose.connect(mongoURI, {
+      serverSelectionTimeoutMS: 5000,
+      tls: true,
+    });
+
     console.log('✅ MongoDB connected successfully');
     return true;
   } catch (error) {
