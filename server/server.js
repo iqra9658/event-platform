@@ -16,10 +16,16 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 // Connect to MongoDB
 const connectDB = async () => {
   try {
-    const mongoURI = process.env.MONGODB_URI || process.env.MONGODB_URL;
+    // 🔴 FIXED HERE: now includes MONGO_URI
+    const mongoURI =
+      process.env.MONGO_URI ||
+      process.env.MONGODB_URI ||
+      process.env.MONGODB_URL;
+
     if (!mongoURI) {
-      throw new Error('MONGODB_URI or MONGODB_URL not configured in .env');
+      throw new Error('MongoDB URI not configured in environment variables');
     }
+
     await mongoose.connect(mongoURI);
     console.log('✅ MongoDB connected successfully');
     return true;
@@ -50,7 +56,10 @@ const startServer = async () => {
   // Error handling middleware
   app.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).json({ message: 'Internal server error', error: err.message });
+    res.status(500).json({
+      message: 'Internal server error',
+      error: err.message,
+    });
   });
 
   // 404 handler
@@ -71,7 +80,7 @@ const startServer = async () => {
     }
   });
 
-  // Keep process alive
+  // Graceful shutdown
   process.on('SIGINT', () => {
     console.log('\n👋 Shutting down gracefully...');
     server.close();
